@@ -17,13 +17,6 @@
 # limitations under the License.
 #
 
-execute "aptget_update" do
-  command "apt-get update"
-  ignore_failure true
-
-  action :nothing
-end.run_action(:run)
-
 template "/etc/apt/sources.list" do
   source "sources.list.erb"
 
@@ -57,3 +50,10 @@ node["apt"]["repos"].each do |repo|
     notifies :run, "execute[aptget_update]", :immediately
   end
 end
+
+execute "aptget_update" do
+  command "apt-get update"
+  ignore_failure true
+
+  action :nothing
+end.run_action(:run)
