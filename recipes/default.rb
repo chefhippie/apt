@@ -57,3 +57,9 @@ execute "aptget_update" do
 
   action :nothing
 end.run_action(:run)
+
+node["apt"]["packages"].each do |name|
+  package name do
+    action :install
+  end.run_action(:install)
+end

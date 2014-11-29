@@ -17,4 +17,13 @@
 # limitations under the License.
 #
 
+default["apt"]["packages"] = value_for_platform_family(
+  "debian" => %w(
+    apt-transport-https
+  ),
+  "ubuntu" => %w(
+    apt-transport-https
+  )
+)
+
 default["apt"]["repos"] = {}
