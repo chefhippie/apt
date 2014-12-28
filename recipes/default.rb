@@ -17,49 +17,51 @@
 # limitations under the License.
 #
 
-template "/etc/apt/sources.list" do
-  source "sources.list.erb"
+if node["platform_family"] == "debian"
+  template "/etc/apt/sources.list" do
+    source "sources.list.erb"
 
-  owner "root"
-  group "root"
-  mode 0644
-
-  notifies :run, "execute[aptget_update]", :immediately
-end
-
-node["apt"]["repos"].each do |repo|
-  apt_repository repo["alias"] do
-    uri repo["uri"]
-    distribution repo["distribution"]
-    components repo["components"]
-
-    if repo["source"]
-      source true
-    else
-      source false
-    end
-
-    if repo["key"]
-      key repo["key"]
-    end
-
-    if repo["keyserver"]
-      keyserver repo["keyserver"]
-    end
+    owner "root"
+    group "root"
+    mode 0644
 
     notifies :run, "execute[aptget_update]", :immediately
   end
-end
 
-execute "aptget_update" do
-  command "apt-get update"
-  ignore_failure true
+  node["apt"]["repos"].each do |repo|
+    apt_repository repo["alias"] do
+      uri repo["uri"]
+      distribution repo["distribution"]
+      components repo["components"]
 
-  action :nothing
-end.run_action(:run)
+      if repo["source"]
+        source true
+      else
+        source false
+      end
 
-node["apt"]["packages"].each do |name|
-  package name do
-    action :install
-  end.run_action(:install)
+      if repo["key"]
+        key repo["key"]
+      end
+
+      if repo["keyserver"]
+        keyserver repo["keyserver"]
+      end
+
+      notifies :run, "execute[aptget_update]", :immediately
+    end
+  end
+
+  execute "aptget_update" do
+    command "apt-get update"
+    ignore_failure true
+
+    action :nothing
+  end.run_action(:run)
+
+  node["apt"]["packages"].each do |name|
+    package name do
+      action :install
+    end.run_action(:install)
+  end
 end
